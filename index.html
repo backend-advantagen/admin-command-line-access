@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-based Command Prompt</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: black;
+            color: lime;
+            padding: 20px;
+            font-size: 16px;
+        }
+        
+        #output {
+            white-space: pre-wrap; 
+        }
+
+        #inputLine {
+            display: flex;
+            align-items: center;
+            visibility: hidden; /* Initially hidden */
+        }
+
+        #prompt {
+            margin-right: 10px;
+        }
+
+        #userInput {
+            width: 80%;
+            color: lime;
+            background-color: black;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="output"></div>
+    <div id="inputLine">
+        <span id="prompt">>[USER]:</span>
+        <input type="text" id="userInput" autofocus disabled>
+    </div>
+
+    <script>
+
+
+
+function shiftCipher(text, shift) {
+    const alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+
+    for (let char of text) {
+        if (alphabets.includes(char.toUpperCase())) {
+            let index = alphabets.indexOf(char.toUpperCase());
+            let shiftedIndex = (index + shift) % 26;
+            if (char === char.toUpperCase()) {
+                result += alphabets[shiftedIndex];
+            } else {
+                result += alphabets[shiftedIndex].toLowerCase();
+            }
+        } else {
+            result += char;
+        }
+    }
+    return result;
+}
+
+
+
+        const output = document.getElementById('output');
+        const userInput = document.getElementById('userInput');
+        const inputLine = document.getElementById('inputLine');
+
+        function printLetterByLetter(element, message, callback = null, index = 0) {
+            if (index < message.length) {
+                element.innerHTML += message[index];
+                setTimeout(function () {
+                    printLetterByLetter(element, message, callback, index + 1);
+                }, 20);
+            } else if (callback) {
+                callback();
+            }
+        }
+
+
+let awaitingEmployeeID = false;
+let accessGranted = false;
+let heightenedSecurityActive = false;
+let currentPushFile = '';
+let hiddenMessage = '';
+let countdownManager; 
+
+
+class CountdownManager {
+    constructor(callback) {
+        this.intervalId = null;
+        this.callback = callback;
+    }
+
+    start() {
+        if (!this.intervalId) {
+            this.intervalId = setInterval(this.callback, 30000);
+        }
+    }
+
+    stop() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+    }
+}
+
+userInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        let inputText = userInput.value.trim();
+
+        // Append the user input to the output instantly
+        output.innerHTML += `>[USER]: ${inputText}\n`;
+
+        if (inputText === 'dir') {
+            const dirMessage = `
+[SECURE TERMINAL]:
+
+secure file directory
+
+11/28/2005  07:26 AM        66,104      ProjectPrime.zip
+07/27/2005  04:14 PM       110,848      ProjectTopspin.zip
+07/27/2005  02:21 PM       101,264      ProjectCastle.zip
+05/16/2005  12:41 PM        19,592      ProjectDeepBreath.zip
+\n`;
+            printLetterByLetter(output, dirMessage);
+
+        } else if (inputText === 'help') {
+            const helpMessage = `
+[SECURE TERMINAL]:
+
+- dir          Displays a list of files in the directory.
+- chkdsk       Checks the disk for integrity errors.
+- systeminfo   Displays machine specific properties and configuration.
+- shutdown     Allows proper local or remote shutdown of machine.
+- help         Provides dictionary of terminal commands.
+- override     Override external scanner and manually input credentials.
+- push         Enter 'push' followed by the file name to push the specified file to a remote server.
+- key          ###
+\n`;
+            printLetterByLetter(output, helpMessage);
+
+        } else if (inputText === 'override') {
+            const overrideMessage = `
+Enter 12 digit employee id number.
+\n`;
+            printLetterByLetter(output, overrideMessage);
+            awaitingEmployeeID = true;
+
+        } else if (awaitingEmployeeID && inputText === '737642886312') { 
+            const grantedMessage = `
+Access granted.
+\n`;
+            printLetterByLetter(output, grantedMessage);
+            awaitingEmployeeID = false;
+            accessGranted = true;
+
+        }
+
+//push below
+        
+
+else if (inputText.startsWith('push ')) { 
+    if (accessGranted && inputText === 'push ProjectDeepBreath.zip') {
+        const deepBreathMessage = `
+Access granted. Asset 'ProjectDeepBreath.zip' identified as Top Secret. Heightened security protocol initiating...
+
+p
+
+────█───────█──────█────
+────█──────▄█──────█───
+───▄█─────███──────█───
+──███──────▀─────▄▄█──
+───▀────────────▐███──
+─────────────────▀▀───
+
+\n`;
+        printLetterByLetter(output, deepBreathMessage);
+        heightenedSecurityActive = true;
+        currentPushFile = 'ProjectDeepBreath.zip';
+
+    } else if (accessGranted && inputText === 'push ProjectCastle.zip') {
+        const castleMessage = `
+Access granted. Asset 'ProjectCastle.zip' identified as Top Secret. Heightened security protocol initiating...
+
+01100101 01110100 01101101 01100001 01101011 01101000 01100101 01100011 01100011
+
+\n`;
+        printLetterByLetter(output, castleMessage);
+        heightenedSecurityActive = true;
+        currentPushFile = 'ProjectCastle.zip';
+
+    } else if (accessGranted && inputText === 'push ProjectTopspin.zip') {
+        const topspinMessage = `
+Access granted. Asset 'ProjectTopspin.zip' identified as Top Secret. Heightened security protocol initiating...
+
+5
+8
+2
+2
+6
+
+\n`;
+        printLetterByLetter(output, topspinMessage);
+        heightenedSecurityActive = true;
+        currentPushFile = 'ProjectTopspin.zip';
+
+    } 
+    
+    
+    else if (accessGranted && inputText === 'push ProjectPrime.zip') {
+    const wordsArray = ["MATH", "SCIENCE", "HISTORY", "ENGLISH", "MUSIC"];
+    let timeLeft = 30;  // 30 seconds for countdown
+    let countdownInterval;
+
+    function generatePrimeMessage() {
+        const randomShift = Math.floor(Math.random() * 26) + 1;
+        const originalMessage = wordsArray[Math.floor(Math.random() * wordsArray.length)];
+        hiddenMessage = originalMessage;
+        const cipheredMessage = shiftCipher(originalMessage, randomShift);
+
+        return `
+Original Message: ${originalMessage}
+Shifted by: ${randomShift}
+Ciphered Message: ${cipheredMessage}
+\n`;
+    }
+
+    const initialMessage = `
+Time left: ${timeLeft} seconds
+${generatePrimeMessage()}`;
+
+    printLetterByLetter(output, initialMessage);
+
+    countdownManager = new CountdownManager(() => {
+        timeLeft = 30;
+        const newPrimeMessage = generatePrimeMessage();
+        printLetterByLetter(output, newPrimeMessage);
+    });
+    countdownManager.start();
+
+    setInterval(() => {
+        timeLeft -= 1;
+        if (timeLeft >= 0) {
+            output.innerHTML = output.innerHTML.replace(/Time left: \d+ seconds/, `Time left: ${timeLeft} seconds`);
+        }
+    }, 1000);
+
+    heightenedSecurityActive = true;
+    currentPushFile = 'ProjectPrime.zip';
+}
+
+
+    
+    
+    
+    else if (!accessGranted) {
+        const unauthorizedMessage = `
+[SECURE TERMINAL]: Unauthorized access attempt detected.
+[SECURE TERMINAL]: Root access required.
+[SECURE TERMINAL]: Please scan ID badge or use the command 'override'
+\n`;
+        printLetterByLetter(output, unauthorizedMessage);
+    }
+
+} else if (heightenedSecurityActive && (
+    (inputText === 'pace' && currentPushFile === 'ProjectDeepBreath.zip') ||
+    (inputText === 'checkmate' && currentPushFile === 'ProjectCastle.zip') ||
+    (inputText === 'deuce' && currentPushFile === 'ProjectTopspin.zip') ||
+    (inputText === hiddenMessage && currentPushFile === 'ProjectPrime.zip'))) {
+    let pushMessage = '';
+
+    if (inputText === 'pace') {
+        pushMessage = `
+Heightened security protocols completed. Push command authorized.
+Pushing data.....
+
+ProjectDeepBreath has been successfully pushed to remote server.
+\n`;
+    } else if (inputText === 'checkmate') {
+        pushMessage = `
+Heightened security protocols completed. Push command authorized.
+Pushing data.....
+
+ProjectCastle has been successfully pushed to remote server.
+\n`;
+    } else if (inputText === 'deuce') {
+        pushMessage = `
+Heightened security protocols completed. Push command authorized.
+Pushing data.....
+
+ProjectTopspin has been successfully pushed to remote server.
+\n`;
+    } else if (inputText === hiddenMessage) {
+        countdownManager.stop();
+        output.innerHTML = output.innerHTML.replace(/Time left: \d+ seconds/, "");
+        pushMessage = `
+Heightened security protocols completed. Push command authorized.
+Pushing data.....
+
+ProjectPrime has been successfully pushed to remote server.
+\n`;
+    }
+
+    printLetterByLetter(output, pushMessage);
+    heightenedSecurityActive = false;
+
+} else if (heightenedSecurityActive) {
+    const incorrectResponseMessage = `
+Incorrect response. Security protocol must be completed before moving on to a different task. Try again.
+\n`;
+    printLetterByLetter(output, incorrectResponseMessage);
+}
+
+
+
+
+//push above
+        
+        else if (inputText === 'systeminfo') {
+            const systeminfoResponse = `
+[SECURE TERMINAL]:
+
+Host Name:                 DESKTOP-123XYZ
+OS Name:                   Microsoft Windows XP
+OS Version:                11.0.12345
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Workstation
+OS Build Type:             Multiprocessor Free
+Registered Owner:          User
+Registered Organization:   User's Org
+Product ID:                12345-678-9101112-13141
+Original Install Date:     10/1/2003, 10:30:45 AM
+System Boot Time:          10/24/2003, 7:45:17 AM
+System Manufacturer:       Dell Inc.
+System Model:              XPS 15 9500
+System Type:               x64-based PC
+Processor(s):              [01]: Intel64 Family 6 Model 165 Stepping 2 GenuineIntel ~2904 Mhz
+                           [02]: Intel64 Family 6 Model 165 Stepping 2 GenuineIntel ~2904 Mhz
+BIOS Version:              Dell Inc. 1.5.0, 6/1/2003
+Windows Directory:         C:\WINDOWS
+System Directory:          C:\WINDOWS\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             en-us;English (United States)
+Input Locale:              en-us;English (United States)
+Time Zone:                 (UTC-07:00) Mountain Time (US & Canada)
+Total Physical Memory:     32,768 MB
+Available Physical Memory: 24,689 MB
+Virtual Memory: Max Size:  37,600 MB
+Virtual Memory: Available: 29,412 MB
+Virtual Memory: In Use:    8,188 MB
+Domain:                    WORKGROUP
+Logon Server:              \\DESKTOP-123XYZ
+Hotfix(s):                 10 Hotfix(s) Installed.
+Network Card(s):           [01]: Intel(R) Wi-Fi 6 AX200 160MHz
+Hyper-V Requirements:      VM Monitor Mode Extensions: Yes
+                           Virtualization Enabled In Firmware: Yes
+                           Second Level Address Translation: Yes
+                           Data Execution Prevention Available: Yes
+\n`;
+            printLetterByLetter(output, systeminfoResponse);
+
+
+        } else if (inputText === 'shutdown') {
+            document.body.innerHTML = '';
+
+
+        } else if (inputText === 'chkdsk') {
+            const chkdskResponse = `
+[SECURE TERMINAL]:
+
+Examining basic file system structure...
+256 file records processed.
+File verification completed.
+15 large file records processed.
+0 bad file records processed.
+
+Examining file name linkage...
+350 index entries processed.
+Index verification completed.
+0 unindexed files scanned.
+0 unindexed files recovered.
+
+Examining security descriptors...
+Security descriptor verification completed.
+4 secure data files processed.
+
+Looking for bad clusters in user file data...
+256 files processed.
+File data verification completed.
+
+Looking for bad, free clusters...
+500000 free clusters processed.
+Free space verification is complete.
+
+Windows has scanned the file system and found no problems.
+No further action is required.
+
+99999999 KB total disk space.
+33333333 KB in 150 files.
+100 KB in 50 indexes.
+0 KB in bad sectors.
+66666666 KB available on disk.
+
+4096 bytes in each allocation unit.
+25000000 total allocation units on disk.
+16666666 allocation units available on disk.
+\n`;
+            printLetterByLetter(output, chkdskResponse);
+
+        } else {
+            if (awaitingEmployeeID) {
+                const invalidIDMessage = `
+Invalid ID. Try again.
+\n`;
+                printLetterByLetter(output, invalidIDMessage);
+            } else {
+                printLetterByLetter(output, `[SECURE TERMINAL]: '${inputText}' is not recognized as an internal or external command. To see available commands, enter 'help'.\n`);
+            }
+        }
+
+        // Clear the input field after processing
+        userInput.value = '';
+
+        // Scroll to bottom if the content overflows
+        output.scrollTop = output.scrollHeight;
+    }
+});
+
+
+
+
+
+        // Initialize the startup messages
+        printLetterByLetter(output, '// INITIALIZING SYSTEM PROTOCOLS...\n// WELCOME TO SECURE TERMINAL v4.2.1\n\n************\n\n[SECURE TERMINAL]: Initializing...\n', function() {
+            printLetterByLetter(output, '[SECURE TERMINAL]: System ready.\n', function() {
+                // Show the input prompt after the messages
+                inputLine.style.visibility = "visible";
+                userInput.disabled = false;
+                userInput.focus();
+            });
+        });
+
+    </script>
+</body>
+</html>
