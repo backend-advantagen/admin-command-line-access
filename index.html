@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>secure terminal access</title>
     <style>
+
+@font-face {
+        font-family: 'LionelMicroNbp-gA25';
+        src: url('https://static1.squarespace.com/static/61677fb4ed3774477e5e74fb/t/616895c6f2208b3de7fb48e9/1634244038098/VCR_OSD_MONO_1.001.ttf') format('truetype');
+    }
+
+
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: black;
@@ -39,6 +46,11 @@
     </style>
 </head>
 <body>
+    <audio id="backgroundAudio" loop preload="auto" style="display:none;">
+        <source src="https://cod-gardenia.squarespace.com/s/White-Cyclosa.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
     <div id="output"></div>
     <div id="inputLine">
         <span id="prompt">>[USER]:</span>
@@ -46,6 +58,106 @@
     </div>
 
     <script>
+
+
+    // Get a reference to the audio element
+    const backgroundAudio = document.getElementById('backgroundAudio');
+
+
+    function backspaceLetterByLetter(element, callback = null, interval = 100) {
+    let text = element.innerHTML;
+    function removeLetter() {
+        if (text.length > 0) {
+            text = text.slice(0, -1); // Remove the last character
+            element.innerHTML = text;
+            setTimeout(removeLetter, interval);
+        } else if (callback) {
+            callback();
+        }
+    }
+    setTimeout(removeLetter, 5000); // Start after 10 seconds
+}
+
+// Modify the startup sequence
+function startUpSequence() {
+    const stageMessageText = "Stage 5: Whistleblower";
+    const stageMessageElement = document.createElement('div');
+    stageMessageElement.style.fontFamily = 'LionelMicroNbp-gA25';
+    stageMessageElement.style.color = 'white';  // Apply the custom font
+    output.appendChild(stageMessageElement); // Append the stage message element to the output
+
+    printLetterByLetter(stageMessageElement, stageMessageText, function() {
+        // After the message is printed, start the backspacing after 10 seconds
+        backspaceLetterByLetter(stageMessageElement, function() {
+            // Remove the stage message element after backspacing is complete
+            output.removeChild(stageMessageElement);
+
+            // After the backspacing is done, print the initial messages
+            printLetterByLetter(output, '// INITIALIZING SYSTEM PROTOCOLS...\n// WELCOME TO SECURE TERMINAL v4.2.1\n\n************\n\n[SECURE TERMINAL]: Initializing...\n', function() {
+                printLetterByLetter(output, '[SECURE TERMINAL]: System ready.\n', function() {
+                    // Show the input prompt after the messages
+                    inputLine.style.visibility = "visible";
+                    userInput.disabled = false;
+                    userInput.focus();
+                });
+            });
+        });
+    });
+}
+
+
+
+function simulateForwarding(element, totalBytes) {
+    let forwardedBytes = 0;
+    const interval = 0.01; // Speed of the simulation, smaller is faster
+    const increment = 5; // Increment the forwarded bytes by 5
+
+    // Disable userInput while forwarding is in progress
+    if (!userInput.disabled) {
+        userInput.disabled = true;
+    }
+
+
+    // Create a placeholder element for the forwarding message
+    const messageElement = document.createElement('div');
+    element.appendChild(messageElement);
+
+    function updateMessage() {
+        if (forwardedBytes < totalBytes) {
+            forwardedBytes += increment; // Increase by 5
+            // If we go over the total, just set it to the total
+            if (forwardedBytes > totalBytes) {
+                forwardedBytes = totalBytes;
+            }
+            // Format numbers with comma separators
+            const formattedForwardedBytes = forwardedBytes.toLocaleString();
+            const formattedTotalBytes = totalBytes.toLocaleString();
+            
+            // Update the message in the placeholder element
+            messageElement.textContent = `${formattedForwardedBytes}/${formattedTotalBytes} bytes forwarded`;
+            
+            // Scroll to the bottom to ensure the latest output is visible
+            document.documentElement.scrollTop = document.documentElement.scrollHeight;
+            document.body.scrollTop = document.body.scrollHeight; // For Safari
+            setTimeout(updateMessage, interval);
+        } else {
+            console.log('simulateForwarding complete');
+            // Format the total bytes with comma separators for the final message
+            const formattedTotalBytes = totalBytes.toLocaleString();
+            messageElement.textContent = `[SECURE TERMINAL]: Forwarding completed. ${formattedTotalBytes}/${formattedTotalBytes} bytes forwarded to remote server.`;
+
+            // Re-enable userInput after forwarding is complete
+            userInput.disabled = false;
+        }
+    }
+
+    updateMessage();
+}
+
+
+
+
+
 
 
 
@@ -69,30 +181,53 @@ function shiftCipher(text, shift) {
     return result;
 }
 
-
+//TODO disable userInput while simulateForwarding is running
 
         const output = document.getElementById('output');
         const userInput = document.getElementById('userInput');
         const inputLine = document.getElementById('inputLine');
 
         function printLetterByLetter(element, message, callback = null, index = 0) {
-            if (index < message.length) {
-                element.innerHTML += message[index];
-                setTimeout(function () {
-                    printLetterByLetter(element, message, callback, index + 1);
-                }, 20);
-            } else if (callback) {
-                callback();
-            }
+    // Disable userInput at the start of the function
+    userInput.disabled = true;
+
+    if (index < message.length) {
+        element.innerHTML += message[index];
+        document.documentElement.scrollTop = document.documentElement.scrollHeight;
+        document.body.scrollTop = document.body.scrollHeight; // For Safari
+        setTimeout(function () {
+            printLetterByLetter(element, message, callback, index + 1);
+        }, 20);
+    } else {
+        // Enable userInput in the callback after the text has finished printing
+        userInput.disabled = false;
+        if (callback) {
+            callback();
         }
+    }
+}
+
+
+            // Play the audio when the user starts typing
+    userInput.addEventListener('input', function() {
+        // Check if the audio is not already playing
+        if (backgroundAudio.paused) {
+            // Try to play the audio
+            backgroundAudio.play().catch(error => {
+                // Handle any playback errors (e.g., user hasn't interacted with the page yet)
+                console.error("Playback failed", error);
+            });
+        }
+    });
 
 
 let awaitingEmployeeID = false;
 let accessGranted = false;
 let heightenedSecurityActive = false;
-let currentPushFile = '';
+let currentforwardFile = '';
 let hiddenMessage = '';
 let countdownManager; 
+
 
 
 class CountdownManager {
@@ -104,20 +239,63 @@ class CountdownManager {
     start() {
         if (!this.intervalId) {
             this.intervalId = setInterval(this.callback, 30000);
+            console.log('Countdown started with ID:', this.intervalId);
         }
     }
 
     stop() {
         if (this.intervalId) {
+            console.log('Clearing countdown with ID:', this.intervalId);
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
     }
 }
 
+
+let inputTracker = {
+    'checkmate': false,
+    'deuce': false,
+    'pace': false,
+    'hiddenMessageEntered': false // We'll use this to track if the hidden message has been entered.
+};
+
+
+
+function checkAllInputsEntered() {
+    return inputTracker.checkmate && inputTracker.deuce && inputTracker.pace && inputTracker.hiddenMessageEntered;
+}
+
+
+
+
 userInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
+
         let inputText = userInput.value.trim();
+
+
+        if (inputText === 'checkmate') {
+    inputTracker.checkmate = true;
+} else if (inputText === 'deuce') {
+    inputTracker.deuce = true;
+} else if (inputText === 'pace') {
+    inputTracker.pace = true;
+} else if (inputText === hiddenMessage && !inputTracker.hiddenMessageEntered) {
+    inputTracker.hiddenMessageEntered = true;
+}
+
+if (checkAllInputsEntered()) {
+    setTimeout(function() {
+        window.location.href = 'https://www.lbrnthgame.com/iofghjsdiocjsdoifcjsdc';
+    }, 30000);
+}
+
+
+
+
+
+        
 
         // Append the user input to the output instantly
         output.innerHTML += `>[USER]: ${inputText}\n`;
@@ -135,7 +313,9 @@ secure file directory
 \n`;
             printLetterByLetter(output, dirMessage);
 
-        } else if (inputText === 'help') {
+        } 
+        
+        else if (inputText === 'help') {
             const helpMessage = `
 [SECURE TERMINAL]:
 
@@ -145,12 +325,26 @@ secure file directory
 - shutdown     Allows proper local or remote shutdown of machine.
 - help         Provides dictionary of terminal commands.
 - override     Override external scanner and manually input credentials.
-- push         Enter 'push' followed by the file name to push the specified file to a remote server.
+- forward      Enter 'forward' followed by the file name and destination server address to forward a file to a remote server.
 - key          ###
 \n`;
             printLetterByLetter(output, helpMessage);
 
-        } else if (inputText === 'override') {
+        } 
+        
+
+        else if (inputText === 'forward') {
+            const helpMessage = `
+[SECURE TERMINAL]: The 'forward' command must be followed by a file name and destination server address. The syntax is as follows:
+
+forward filename.zip serveraddress
+
+\n`;
+            printLetterByLetter(output, helpMessage);
+
+        } 
+
+        else if (inputText === 'override') {
             const overrideMessage = `
 Enter 12 digit employee id number.
 \n`;
@@ -167,13 +361,19 @@ Access granted.
 
         }
 
-//push below
+//forward below
         
 
-else if (inputText.startsWith('push ')) { 
-    if (accessGranted && inputText === 'push ProjectDeepBreath.zip') {
+else if (
+    inputText === 'forward ProjectDeepBreath.zip http://192.168.1.30/infoleaksweb/upload' ||
+    inputText === 'forward ProjectCastle.zip http://192.168.1.30/infoleaksweb/upload' ||
+    inputText === 'forward ProjectTopspin.zip http://192.168.1.30/infoleaksweb/upload' ||
+    inputText === 'forward ProjectPrime.zip http://192.168.1.30/infoleaksweb/upload'
+) {
+
+
+    if (accessGranted && inputText === 'forward ProjectDeepBreath.zip http://192.168.1.30/infoleaksweb/upload') {
         const deepBreathMessage = `
-Access granted. Asset 'ProjectDeepBreath.zip' identified as Top Secret. Heightened security protocol initiating...
 
 p
 
@@ -187,22 +387,20 @@ p
 \n`;
         printLetterByLetter(output, deepBreathMessage);
         heightenedSecurityActive = true;
-        currentPushFile = 'ProjectDeepBreath.zip';
+        currentforwardFile = 'ProjectDeepBreath.zip';
 
-    } else if (accessGranted && inputText === 'push ProjectCastle.zip') {
+    } else if (accessGranted && inputText === 'forward ProjectCastle.zip http://192.168.1.30/infoleaksweb/upload') {
         const castleMessage = `
-Access granted. Asset 'ProjectCastle.zip' identified as Top Secret. Heightened security protocol initiating...
 
 01100101 01110100 01101101 01100001 01101011 01101000 01100101 01100011 01100011
 
 \n`;
         printLetterByLetter(output, castleMessage);
         heightenedSecurityActive = true;
-        currentPushFile = 'ProjectCastle.zip';
+        currentforwardFile = 'ProjectCastle.zip';
 
-    } else if (accessGranted && inputText === 'push ProjectTopspin.zip') {
+    } else if (accessGranted && inputText === 'forward ProjectTopspin.zip http://192.168.1.30/infoleaksweb/upload') {
         const topspinMessage = `
-Access granted. Asset 'ProjectTopspin.zip' identified as Top Secret. Heightened security protocol initiating...
 
 5
 8
@@ -213,51 +411,54 @@ Access granted. Asset 'ProjectTopspin.zip' identified as Top Secret. Heightened 
 \n`;
         printLetterByLetter(output, topspinMessage);
         heightenedSecurityActive = true;
-        currentPushFile = 'ProjectTopspin.zip';
+        currentforwardFile = 'ProjectTopspin.zip';
 
     } 
     
     
-    else if (accessGranted && inputText === 'push ProjectPrime.zip') {
-    const wordsArray = ["MATH", "SCIENCE", "HISTORY", "ENGLISH", "MUSIC"];
-    let timeLeft = 30;  // 30 seconds for countdown
-    let countdownInterval;
+    else if (accessGranted && inputText === 'forward ProjectPrime.zip http://192.168.1.30/infoleaksweb/upload') {
+    const wordsArray = ["TENNIS", "NET"];
+    let count = 0; // Initialize count to track the number of printed messages
 
     function generatePrimeMessage() {
-        const randomShift = Math.floor(Math.random() * 26) + 1;
+        const randomShift = Math.floor(Math.random() * 25) + 1;
         const originalMessage = wordsArray[Math.floor(Math.random() * wordsArray.length)];
         hiddenMessage = originalMessage;
         const cipheredMessage = shiftCipher(originalMessage, randomShift);
 
-        return `
-Original Message: ${originalMessage}
-Shifted by: ${randomShift}
-Ciphered Message: ${cipheredMessage}
-\n`;
+        return {
+            shift: randomShift,
+            cipheredMessage: cipheredMessage
+        };
     }
 
-    const initialMessage = `
-Time left: ${timeLeft} seconds
-${generatePrimeMessage()}`;
+    let primeMessageData = generatePrimeMessage(); // Get the initial message and shift
 
-    printLetterByLetter(output, initialMessage);
 
-    countdownManager = new CountdownManager(() => {
-        timeLeft = 30;
-        const newPrimeMessage = generatePrimeMessage();
-        printLetterByLetter(output, newPrimeMessage);
-    });
-    countdownManager.start();
-
-    setInterval(() => {
-        timeLeft -= 1;
-        if (timeLeft >= 0) {
-            output.innerHTML = output.innerHTML.replace(/Time left: \d+ seconds/, `Time left: ${timeLeft} seconds`);
+    function printPrimeMessage() {
+        if (count === 0) {
+            // Print the shift number at the start of each set
+            output.innerHTML += `shift: ${primeMessageData.shift}\n`;
         }
-    }, 1000);
+        count++;
+        output.innerHTML += `${count} ${primeMessageData.cipheredMessage}\n`;
+
+        // Ensure the latest output is visible
+        document.documentElement.scrollTop = document.documentElement.scrollHeight;
+        document.body.scrollTop = document.body.scrollHeight; // For Safari
+
+        if (count >= 60) {
+            // Reset count and get a new message
+            count = 0;
+            primeMessageData = generatePrimeMessage();
+        }
+    }
+
+    // Start the message printing interval
+    countdownInterval = setInterval(printPrimeMessage, 1000);
 
     heightenedSecurityActive = true;
-    currentPushFile = 'ProjectPrime.zip';
+    currentforwardFile = 'ProjectPrime.zip';
 }
 
 
@@ -273,59 +474,81 @@ ${generatePrimeMessage()}`;
         printLetterByLetter(output, unauthorizedMessage);
     }
 
-} else if (heightenedSecurityActive && (
-    (inputText === 'pace' && currentPushFile === 'ProjectDeepBreath.zip') ||
-    (inputText === 'checkmate' && currentPushFile === 'ProjectCastle.zip') ||
-    (inputText === 'deuce' && currentPushFile === 'ProjectTopspin.zip') ||
-    (inputText === hiddenMessage && currentPushFile === 'ProjectPrime.zip'))) {
-    let pushMessage = '';
+} 
+
+
+
+else if (inputText.startsWith('forward ')) {
+    if (
+        inputText !== 'forward ProjectDeepBreath.zip http://192.168.1.30/infoleaksweb/upload' &&
+        inputText !== 'forward ProjectCastle.zip http://192.168.1.30/infoleaksweb/upload' &&
+        inputText !== 'forward ProjectTopspin.zip http://192.168.1.30/infoleaksweb/upload' &&
+        inputText !== 'forward ProjectPrime.zip http://192.168.1.30/infoleaksweb/upload'
+    ) {
+        // The command is a forward command but not one of the valid ones
+        const invalidCommandMessage = `
+[SECURE TERMINAL]: Invalid file or destination address
+\n`;
+        printLetterByLetter(output, invalidCommandMessage);
+    }
+}
+
+
+else if (heightenedSecurityActive && (
+    (inputText === 'pace' && currentforwardFile === 'ProjectDeepBreath.zip') ||
+    (inputText === 'checkmate' && currentforwardFile === 'ProjectCastle.zip') ||
+    (inputText === 'deuce' && currentforwardFile === 'ProjectTopspin.zip') ||
+    (inputText === hiddenMessage && currentforwardFile === 'ProjectPrime.zip'))) {
+    let forwardMessage = '';
+    let byteNumber = '';
 
     if (inputText === 'pace') {
-        pushMessage = `
-Heightened security protocols completed. Push command authorized.
-Pushing data.....
-
-ProjectDeepBreath has been successfully pushed to remote server.
+        forwardMessage = `
+Forwarding ProjectDeepBreath.zip....
 \n`;
+
+byteNumber = 24277;
+
     } else if (inputText === 'checkmate') {
-        pushMessage = `
-Heightened security protocols completed. Push command authorized.
-Pushing data.....
-
-ProjectCastle has been successfully pushed to remote server.
+        forwardMessage = `
+Forwarding ProjectCastle.zip....
 \n`;
+
+byteNumber = 21234;
+
     } else if (inputText === 'deuce') {
-        pushMessage = `
-Heightened security protocols completed. Push command authorized.
-Pushing data.....
-
-ProjectTopspin has been successfully pushed to remote server.
+        forwardMessage = `
+Forwarding ProjectTopspin.zip....
 \n`;
+byteNumber = 28909;
     } else if (inputText === hiddenMessage) {
-        countdownManager.stop();
-        output.innerHTML = output.innerHTML.replace(/Time left: \d+ seconds/, "");
-        pushMessage = `
-Heightened security protocols completed. Push command authorized.
-Pushing data.....
-
-ProjectPrime has been successfully pushed to remote server.
+        clearInterval(countdownInterval)
+        forwardMessage = `
+Forwarding ProjectPrime.zip....
 \n`;
+byteNumber = 19232;
     }
 
-    printLetterByLetter(output, pushMessage);
-    heightenedSecurityActive = false;
+    printLetterByLetter(output, forwardMessage, function() {
+    // This function gets called after printLetterByLetter has finished
+    simulateForwarding(output, byteNumber); // Replace 1444444 with the actual byte count for each file
+});
+
+heightenedSecurityActive = false;
 
 } else if (heightenedSecurityActive) {
     const incorrectResponseMessage = `
-Incorrect response. Security protocol must be completed before moving on to a different task. Try again.
+Incorrect response. Try again.
 \n`;
-    printLetterByLetter(output, incorrectResponseMessage);
+clearInterval(countdownInterval); // Stop the prime message printing interval
+printLetterByLetter(output, incorrectResponseMessage);
+
 }
 
 
 
 
-//push above
+//forward above
         
         else if (inputText === 'systeminfo') {
             const systeminfoResponse = `
@@ -441,15 +664,7 @@ Invalid ID. Try again.
 
 
 
-        // Initialize the startup messages
-        printLetterByLetter(output, '// INITIALIZING SYSTEM PROTOCOLS...\n// WELCOME TO SECURE TERMINAL v4.2.1\n\n************\n\n[SECURE TERMINAL]: Initializing...\n', function() {
-            printLetterByLetter(output, '[SECURE TERMINAL]: System ready.\n', function() {
-                // Show the input prompt after the messages
-                inputLine.style.visibility = "visible";
-                userInput.disabled = false;
-                userInput.focus();
-            });
-        });
+startUpSequence();
 
     </script>
 </body>
